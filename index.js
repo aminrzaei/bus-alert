@@ -5,33 +5,15 @@ const moment = require("jalali-moment");
 const cron = require("node-cron");
 const axios = require("axios");
 
+const { CITIES, STATES, BUS_URL } = require("./constants");
+
 const PORT = process.env.PORT || 3000;
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 const app = express();
 
 const users = {};
 
-const STATES = {
-  START: "START",
-  SELECT_FROM: "SELECT_FROM",
-  SELECT_TO: "SELECT_TO",
-  SELECT_DATE: "SELECT_DATE",
-  END: "END",
-  DONE: "DONE",
-};
-
-const CITIES = {
-  MALAYER: {
-    name: "ملایر",
-    code: 75370000,
-  },
-  TEHRAN: {
-    name: "تهران",
-    code: 11320000,
-  },
-};
-
-cron.schedule("* * * * *", async () => {
+cron.schedule("* * * * * *", async () => {
   for (const key in users) {
     const user = users[key];
     if (user.state !== STATES.DONE || !user.active) return;
@@ -50,7 +32,10 @@ cron.schedule("* * * * *", async () => {
     }
     const report = createReport(availableToBuy);
     const report_header = `لیست اتوبوس های ${user.from} به ${user.to} در تاریخ ${user.date}:\n\n`;
-    const fullReport = report_header + report;
+    let fullReport = report_header + report;
+    if (fullReport.length > 4096) {
+      fullReport = fullReport.slice(0, 4096);
+    }
     bot.sendMessage(key, fullReport);
   }
 });
@@ -64,7 +49,6 @@ function getCityByName(cityName) {
 }
 
 async function getAvailableBuses(from, to, date) {
-  const BUS_URL = "https://ws.alibaba.ir/api/v2/bus/available?";
   try {
     const res = await axios.get(
       `${BUS_URL}orginCityCode=${from}&destinationCityCode=${to}&requestDate=${date}&passengerCount=1`
@@ -98,7 +82,7 @@ function getAvailableToBuy(busList) {
 
 function createReport(list) {
   return list.join(
-    "---------------- ---------------- ----------------  ---------------- ----------------\n"
+    "\n ---------------- ---------------- ----------------  ---------------- \n"
   );
 }
 
@@ -144,10 +128,6 @@ function createDatesKeyboard(currentDate) {
   });
   return keyBoard;
 }
-
-app.get("/", (req, res) => {
-  res.send("Bot server running...");
-});
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
@@ -231,6 +211,10 @@ bot.on("text", (msg) => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.send("Bot server running...");
+});
+
 app.listen(PORT, () => {
-  console.log(`BusAlert is running on port ${PORT}}`);
+  console.log(`BusAlert is running on port ${PORT}`);
 });
