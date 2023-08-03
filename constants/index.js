@@ -24,6 +24,14 @@ const CITIES = {
     name: "اصفهان",
     code: 21310000,
   },
+  ASALOOIE: {
+    name: "عسلویه",
+    code: 95410000,
+  },
+  KERMANSHAH: {
+    name: "کرمانشاه",
+    code: 71310000,
+  },
   SHIRAZ: {
     name: "شیراز",
     code: 41310000,

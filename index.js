@@ -200,11 +200,16 @@ bot.on("text", (msg) => {
         state: STATES.DONE,
         date: selectedDate,
       };
-      bot.sendMessage(chatId, "پیگیری شما اضافه شد 🙌", {
-        reply_markup: {
-          remove_keyboard: true,
-        },
-      });
+      bot.sendMessage(
+        chatId,
+        `پیگیری شما اضافه شد 🙌/n
+به محض موجود شدن اتوبوس به شما اطلاع رسانی می‌شود`,
+        {
+          reply_markup: {
+            remove_keyboard: true,
+          },
+        }
+      );
       break;
     default:
       break;
