@@ -8,12 +8,12 @@ const axios = require("axios");
 const { CITIES, STATES, BUS_URL } = require("./constants");
 
 const PORT = process.env.PORT || 3000;
+const INTERVAL = process.env.INTERVAL || "*/5 * * * *"; // every 5 minutes;
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 const app = express();
 
 const users = {};
-
-cron.schedule("* * * * * *", async () => {
+cron.schedule(INTERVAL, async () => {
   for (const key in users) {
     const user = users[key];
     if (user.state !== STATES.DONE || !user.active) return;
